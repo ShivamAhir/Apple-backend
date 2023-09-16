@@ -1,8 +1,6 @@
 const fs=require('fs');
 const mongoose = require('mongoose');
 const url=require('url');
-
-const bcrypt=require('bcrypt');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -31,6 +29,7 @@ const buySchema=new mongoose.Schema({
     size:String,
     display:String,
     link:String,
+    userLog:String,
     price:String
 });
 const Buy= mongoose.model('buys', buySchema);
@@ -103,7 +102,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
 
-app.get('/api/homes', async(req, res) => {   
+app.get('/api/', async(req, res) => {   
     let home = await Home.find({});
     res.status(200).send(home);
 });
@@ -152,19 +151,33 @@ app.post('/api/signup', (req, res) => {
         res.status(400).json({ message: 'Invalid signup data' });
     }
 });
+var log_userEmail;
+var log_userName;
 
 app.post('/api/login', async(req, res) => {
     try {
         const { email, password } = req.body;
-        
-        console.log(req.body);
         const userdata = await User.find({ email: email });
-        console.log(userdata);
+
         if (!userdata) {
           console.log('User not found');
           res.status(404).json({ message: 'User not found' });
         }
         else{ 
+            if(email==userdata[0].email && password==userdata[0].password)
+            {
+                log_userEmail=userdata[0].email;
+                log_userName=userdata[0].username;
+                console.log(log_userEmail);
+                console.log(log_userName);
+
+                res.status(201).json({ message: 'Log in Succesfull' });
+            }
+            else
+            {
+                res.status(201).json({ message: 'Invalid Credential' });
+            }
+
         }
       } catch (error) {
         console.error('Error:', error);
