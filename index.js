@@ -2,7 +2,7 @@ const fs=require('fs');
 const mongoose = require('mongoose');
 const url=require('url');
 
-
+const bcrypt=require('bcrypt');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -153,6 +153,27 @@ app.post('/api/signup', (req, res) => {
     }
 });
 
+app.post('/api/login', async(req, res) => {
+    try {
+        const { email, password } = req.body;
+        
+        console.log(req.body);
+        const userdata = await User.find({ email: email });
+        console.log(userdata);
+        if (!userdata) {
+          console.log('User not found');
+          res.status(404).json({ message: 'User not found' });
+        }
+        else{ 
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        return res.status(500).json({ message: 'Server error' });
+      }
+
+});
+
+  
 
 
 
