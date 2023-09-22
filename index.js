@@ -98,6 +98,7 @@ const Mac = mongoose.model('macs', macSchema);
 
 const bodyParser = require('body-parser');
 const { log } = require('console');
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -112,25 +113,141 @@ app.get('/api/iphone', async(req, res) => {
     res.status(200).send(iphone);
 });
 
+app.get('/api/iphone/:item', async(req, res) => {
+    try {
+      let itemId = req.params.item; 
+      let num=0;
+
+      for(let i=0;i<itemId.length;i++)
+      {
+        if(itemId[i]=='=')
+        {
+            num=itemId[i+1];
+            break;
+        }
+      }
+      num=num*1;
+      num--;
+      let iphone = await Iphone.find({});
+  
+      res.status(200).json(iphone[num]);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+  
+
 app.get('/api/ipad', async(req, res) => {
     let ipad = await Ipad.find({});
     res.status(200).send(ipad);
 });
+app.get('/api/ipad/:item', async(req, res) => {
+    try {
+      let itemId = req.params.item; 
+      let num=0;
+
+      for(let i=0;i<itemId.length;i++)
+      {
+        if(itemId[i]=='=')
+        {
+            num=itemId[i+1];
+            break;
+        }
+      }
+      num=num*1;
+      num--;
+      let ipad = await Ipad.find({});
+  
+      res.status(200).json(ipad[num]);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 app.get('/api/imac', async(req, res) => {
     let macs = await Mac.find({});
     res.status(200).send(macs);
 });
+app.get('/api/imac/:item', async(req, res) => {
+    try {
+      let itemId = req.params.item; 
+      let num=0;
+
+      for(let i=0;i<itemId.length;i++)
+      {
+        if(itemId[i]=='=')
+        {
+            num=itemId[i+1];
+            break;
+        }
+      }
+      num=num*1;
+      num--;
+      let macs = await Mac.find({});
+  
+      res.status(200).json(macs[num]);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 app.get('/api/iwatch', async(req, res) => {
     let iwatch = await Iwatch.find({});
     res.status(200).send(iwatch);
 });
+app.get('/api/iwatch/:item', async(req, res) => {
+    try {
+      let itemId = req.params.item; 
+      let num=0;
 
+      for(let i=0;i<itemId.length;i++)
+      {
+        if(itemId[i]=='=')
+        {
+            num=itemId[i+1];
+            break;
+        }
+      }
+      num=num*1;
+      num--;
+      let iwatch = await Iwatch.find({});
+  
+      res.status(200).json(iwatch[num]);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 app.get('/api/airpords', async(req, res) => {
     let airpords = await Airpords.find({});
     res.status(200).send(airpords);
 });
+app.get('/api/airpod/:item', async(req, res) => {
+    try {
+      let itemId = req.params.item; 
+      let num=0;
+
+      for(let i=0;i<itemId.length;i++)
+      {
+        if(itemId[i]=='=')
+        {
+            num=itemId[i+1];
+            break;
+        }
+      }
+      num=num*1;
+      num--;
+      let airpords = await Airpords.find({});
+  
+      res.status(200).json(airpords[num]);
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
 
 app.post('/api/signup', (req, res) => {
     const { username, email, password } = req.body;
@@ -185,9 +302,6 @@ app.post('/api/login', async(req, res) => {
       }
 
 });
-
-  
-
 
 
 
