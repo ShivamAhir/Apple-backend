@@ -1,6 +1,4 @@
-const fs=require('fs');
 const mongoose = require('mongoose');
-const url=require('url');
 const express = require('express');
 const cors = require('cors');
 const app = express();
@@ -20,7 +18,6 @@ const UserSchema=new mongoose.Schema({
     username:String
 });
 const User= mongoose.model('users', UserSchema);
-
 
 const buySchema=new mongoose.Schema({
     id:Number,
@@ -93,7 +90,6 @@ const macSchema = new mongoose.Schema({
     link: String,
     price: String
 });
-
 const Mac = mongoose.model('macs', macSchema);
 
 const bodyParser = require('body-parser');
@@ -101,6 +97,35 @@ const { log } = require('console');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
+
+app.get('/api/logUser', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.flushHeaders(); // Flush the headers to initiate SSE connection
+  
+  function sendSSEData() {
+    const sseData = {
+      UserName: log_userName,       
+      UserEmail: log_userEmail,    
+    };
+    const sseString = `data: ${JSON.stringify(sseData)}\n\n`;
+    res.write(sseString);
+  }
+
+  // Send initial data
+  sendSSEData();
+
+  // Simulate continuous updates (you should replace this with your logic)
+  const intervalId = setInterval(() => {
+    sendSSEData();
+  }, 5000); // Send updates every 5 seconds as an example
+
+  // Handle client disconnect
+  req.on('close', () => {
+    clearInterval(intervalId); // Stop sending updates when the client disconnects
+    res.end(); // End the response
+  });
+});
 
 
 app.get('/api/', async(req, res) => {   
@@ -136,7 +161,6 @@ app.get('/api/iphone/:item', async(req, res) => {
     }
   });
 app.post('/api/iphone/:item', async (req, res) => {
-    console.log('clicked')
     try {
       let itemId = req.params.item;
       let num = 0;
@@ -149,8 +173,6 @@ app.post('/api/iphone/:item', async (req, res) => {
       }
       num = num * 1;
       num--;
-      console.log(num)
-      console.log(log_userEmail)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
@@ -457,8 +479,16 @@ app.post('/api/signup', (req, res) => {
         res.status(400).json({ message: 'Invalid signup data' });
     }
 });
+
 var log_userEmail="";
 var log_userName="";
+
+app.post('/api/logout', async(req, res) => {
+    log_userEmail="";
+    log_userName="";
+    res.status(201).json({"message":"Logout Succesfull"});
+})
+
 
 app.post('/api/login', async(req, res) => {
     try {
@@ -474,9 +504,7 @@ app.post('/api/login', async(req, res) => {
             {
                 log_userEmail=userdata[0].email;
                 log_userName=userdata[0].username;
-                console.log(log_userEmail);
-                console.log(log_userName);
-
+                console.log("Log In succesfull")
                 res.status(201).json({ message: 'Log in Succesfull' });
             }
             else
@@ -491,7 +519,6 @@ app.post('/api/login', async(req, res) => {
       }
 
 });
-
 
 
 app.listen(port, () => {
