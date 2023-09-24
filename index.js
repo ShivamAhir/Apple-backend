@@ -224,7 +224,6 @@ app.get('/api/ipad/:item', async(req, res) => {
     }
   });
   app.post('/api/ipad/:item', async (req, res) => {
-    console.log('clicked')
     try {
       let itemId = req.params.item;
       let num = 0;
@@ -290,7 +289,7 @@ app.get('/api/imac/:item', async(req, res) => {
     }
 });
 app.post('/api/imac/:item', async (req, res) => {
-    console.log('clicked')
+
     try {
       let itemId = req.params.item;
       let num = 0;
@@ -303,8 +302,6 @@ app.post('/api/imac/:item', async (req, res) => {
       }
       num = num * 1;
       num--;
-      console.log(num)
-      console.log(log_userEmail)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
@@ -356,7 +353,6 @@ app.get('/api/iwatch/:item', async(req, res) => {
     }
 });
 app.post('/api/iwatch/:item', async (req, res) => {
-    console.log('clicked')
     try {
       let itemId = req.params.item;
       let num = 0;
@@ -369,8 +365,6 @@ app.post('/api/iwatch/:item', async (req, res) => {
       }
       num = num * 1;
       num--;
-      console.log(num)
-      console.log(log_userEmail)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
@@ -422,7 +416,6 @@ app.get('/api/airpod/:item', async(req, res) => {
     }
 });
 app.post('/api/airpod/:item', async (req, res) => {
-    console.log('clicked')
     try {
       let itemId = req.params.item;
       let num = 0;
@@ -435,8 +428,6 @@ app.post('/api/airpod/:item', async (req, res) => {
       }
       num = num * 1;
       num--;
-      console.log(num)
-      console.log(log_userEmail)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
@@ -483,6 +474,24 @@ app.post('/api/signup', (req, res) => {
 var log_userEmail="";
 var log_userName="";
 
+app.post('/api/delete/:temp', async (req, res) => {
+  const temp = req.params.temp; // Retrieve the value of the 'temp' parameter from the URL
+
+  try {
+    const result = await Buy.deleteOne({ _id: temp });
+
+    if (result.deletedCount === 1) {
+      res.status(200).json({ message: 'Successfully deleted' });
+    } else {
+      res.status(404).json({ message: 'Document not found' });
+    }
+  } catch (error) {
+    console.error('Error deleting document:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
 app.post('/api/logout', async(req, res) => {
     log_userEmail="";
     log_userName="";
@@ -519,8 +528,17 @@ app.post('/api/login', async(req, res) => {
       }
 
 });
+app.get('/api/buy', async (req, res) => {
+  if (log_userEmail === "") {
+    res.status(200).json({}); 
+  } else {
+    let buy = await Buy.find({ userLog: log_userEmail });
+    res.status(200).json(buy); 
+  }
+});
 
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
+
