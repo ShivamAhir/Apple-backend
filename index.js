@@ -22,7 +22,7 @@ const User= mongoose.model('users', UserSchema);
 const CommentSchema=new mongoose.Schema({
   Product_id:String,
   email:String,
-  rating:Number,
+  rating:String,
   username:String,
   meassage:String
 
@@ -206,21 +206,45 @@ app.post('/api/iphone/:item', async (req, res) => {
     }
 });  
 
-app.post('/api/commentBox',(req,res)=>{
-  const {product_id,rating,comment } = req.body;
-  console.log(req.body);
-  res.status(201).json({ message: 'Successfuly product added to cart' });
+app.post('/api/commentbox', async (req, res) => {
+  const { product_id, rating, comment } = req.body;
+  console.log(comment);
+  if (log_userName !== "") {
+    const newComment = new Comment({
+      Product_id: product_id,
+      username: log_userName,
+      email: log_userEmail,
+      rating: rating,
+      meassage: comment
+    });
 
-  const newComment=new Comment({
-    Product_id:product_id,
-    username:log_userName,
-    email:log_userEmail,
-    rating:rating,
-    message:comment
-  });
-  newComment.save();
+    try {
+      const savedComment = await newComment.save();
 
+      res.status(201).json({ message: 'Successfully added comment' });
+    } catch (error) {
+      console.error('Error saving comment:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  } else {
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
+
+
+app.get('/api/commentBox/:temp', async (req, res) => {
+  try {
+    var product = req.params.temp; // Use req.params to get the parameter
+    //{ Product_id: product }
+    let comments = await Comment.find({ Product_id: product }) // Use await and lean()
+    res.status(201).json(comments); // Send the plain JavaScript object as JSON
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 app.get('/api/ipad', async(req, res) => {
     let ipad = await Ipad.find({});
