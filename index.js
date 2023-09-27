@@ -19,6 +19,16 @@ const UserSchema=new mongoose.Schema({
 });
 const User= mongoose.model('users', UserSchema);
 
+const CommentSchema=new mongoose.Schema({
+  Product_id:String,
+  email:String,
+  rating:Number,
+  username:String,
+  meassage:String
+
+});
+const Comment= mongoose.model('comments', CommentSchema);
+
 const buySchema=new mongoose.Schema({
     id:Number,
     bool:Boolean,
@@ -195,6 +205,22 @@ app.post('/api/iphone/:item', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
 });  
+
+app.post('/api/commentBox',(req,res)=>{
+  const {product_id,rating,comment } = req.body;
+  console.log(req.body);
+  res.status(201).json({ message: 'Successfuly product added to cart' });
+
+  const newComment=new Comment({
+    Product_id:product_id,
+    username:log_userName,
+    email:log_userEmail,
+    rating:rating,
+    message:comment
+  });
+  newComment.save();
+
+});
 
 app.get('/api/ipad', async(req, res) => {
     let ipad = await Ipad.find({});
@@ -492,42 +518,37 @@ app.post('/api/delete/:temp', async (req, res) => {
 });
 
 
-app.post('/api/logout', async(req, res) => {
+app.post('/api/logout', (req, res) => {
     log_userEmail="";
     log_userName="";
     res.status(201).json({"message":"Logout Succesfull"});
 })
 
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userdata = await User.find({ email: email });
 
-app.post('/api/login', async(req, res) => {
-    try {
-        const { email, password } = req.body;
-        const userdata = await User.find({ email: email });
-
-        if (!userdata) {
-          console.log('User not found');
-          res.status(404).json({ message: 'User not found' });
-        }
-        else{ 
-            if(email==userdata[0].email && password==userdata[0].password)
-            {
-                log_userEmail=userdata[0].email;
-                log_userName=userdata[0].username;
-                console.log("Log In succesfull")
-                res.status(201).json({ message: 'Log in Succesfull' });
-            }
-            else
-            {
-                res.status(201).json({ message: 'Invalid Credential' });
-            }
-
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        return res.status(500).json({ message: 'Server error' });
+    if (!userdata || userdata.length === 0) {
+      console.log('User not found');
+      res.status(404).json({ message: 'User not found' });
+    } else {
+      if (email == userdata[0].email && password == userdata[0].password) {
+        log_userEmail = userdata[0].email;
+        log_userName = userdata[0].username;
+        console.log("Log In successful");
+        // Redirect to the home page after successful login
+        res.redirect('/');
+      } else {
+        res.status(401).json({ message: 'Invalid Credentials' });
       }
-
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ message: 'Server error' });
+  }
 });
+
 app.get('/api/buy', async (req, res) => {
   if (log_userEmail === "") {
     res.status(200).json({}); 
