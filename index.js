@@ -147,29 +147,44 @@ app.get('/api/iphone', async(req, res) => {
     let iphone = await Iphone.find({});
     res.status(200).send(iphone);
 });
-app.get('/api/iphone/:item', async(req, res) => {
-    try {
-      let itemId = req.params.item; 
-      let num=0;
+app.get('/api/iphone/:item', async (req, res) => {
+  try {
+    let itemId = req.params.item;
+    let num = 0;
 
-      for(let i=0;i<itemId.length;i++)
-      {
-        if(itemId[i]=='=')
-        {
-            num=itemId[i+1];
-            break;
-        }
+    for (let i = 0; i < itemId.length; i++) {
+      if (itemId[i] == '=') {
+        num = itemId[i + 1];
+        break;
       }
-      num=num*1;
-      num--;
-      let iphone = await Iphone.find({});
-  
-      res.status(200).json(iphone[num]);
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
-  });
+    num = num * 1;
+    num--;
+
+    let iphone = await Iphone.find({});
+    
+    // Fetch CommentBos
+    let CommentBos = await Comment.find({
+      $and: [
+        { email: log_userEmail },
+        { Product_id: iphone[num]._id }
+      ]
+    });
+
+    // Create a new object with the product data and add alreadyComment field
+    let productData = {
+      ...iphone[num]._doc, // Spread the properties of the product
+      alreadyComment: CommentBos.length !== 0 // Set alreadyComment based on CommentBos length
+    };
+
+    res.status(200).json(productData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
 app.post('/api/iphone/:item', async (req, res) => {
     try {
       let itemId = req.params.item;
@@ -208,7 +223,6 @@ app.post('/api/iphone/:item', async (req, res) => {
 
 app.post('/api/commentbox', async (req, res) => {
   const { product_id, rating, comment } = req.body;
-  console.log(comment);
   if (log_userName !== "") {
     const newComment = new Comment({
       Product_id: product_id,
@@ -231,7 +245,17 @@ app.post('/api/commentbox', async (req, res) => {
   }
 });
 
-
+app.get('/api/RatingBox/:temp', async (req, res) => {
+  try {
+    var product = req.params.temp; // Use req.params to get the parameter
+    //{ Product_id: product }
+    let comments = await Comment.find({ Product_id: product }) // Use await and lean()
+    res.status(201).json(comments); // Send the plain JavaScript object as JSON
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 app.get('/api/commentBox/:temp', async (req, res) => {
   try {
@@ -245,34 +269,48 @@ app.get('/api/commentBox/:temp', async (req, res) => {
   }
 });
 
-
 app.get('/api/ipad', async(req, res) => {
     let ipad = await Ipad.find({});
     res.status(200).send(ipad);
 });
-app.get('/api/ipad/:item', async(req, res) => {
-    try {
-      let itemId = req.params.item; 
-      let num=0;
+app.get('/api/ipad/:item', async (req, res) => {
+  try {
+    let itemId = req.params.item;
+    let num = 0;
 
-      for(let i=0;i<itemId.length;i++)
-      {
-        if(itemId[i]=='=')
-        {
-            num=itemId[i+1];
-            break;
-        }
+    for (let i = 0; i < itemId.length; i++) {
+      if (itemId[i] == '=') {
+        num = itemId[i + 1];
+        break;
       }
-      num=num*1;
-      num--;
-      let ipad = await Ipad.find({});
-  
-      res.status(200).json(ipad[num]);
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
-  });
+    num = num * 1;
+    num--;
+
+    let ipad = await Ipad.find({});
+
+    // Fetch CommentBos
+    let CommentBos = await Comment.find({
+      $and: [
+        { email: log_userEmail },
+        { Product_id: ipad[num]._id }
+      ]
+    });
+
+    // Create a new object with the product data and add alreadyComment field
+    let productData = {
+      ...ipad[num]._doc, // Spread the properties of the product
+      alreadyComment: CommentBos.length !== 0 // Set alreadyComment based on CommentBos length
+    };
+
+    res.status(200).json(productData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+
   app.post('/api/ipad/:item', async (req, res) => {
     try {
       let itemId = req.params.item;
@@ -315,29 +353,43 @@ app.get('/api/imac', async(req, res) => {
     let macs = await Mac.find({});
     res.status(200).send(macs);
 });
-app.get('/api/imac/:item', async(req, res) => {
-    try {
-      let itemId = req.params.item; 
-      let num=0;
+app.get('/api/imac/:item', async (req, res) => {
+  try {
+    let itemId = req.params.item;
+    let num = 0;
 
-      for(let i=0;i<itemId.length;i++)
-      {
-        if(itemId[i]=='=')
-        {
-            num=itemId[i+1];
-            break;
-        }
+    for (let i = 0; i < itemId.length; i++) {
+      if (itemId[i] == '=') {
+        num = itemId[i + 1];
+        break;
       }
-      num=num*1;
-      num--;
-      let macs = await Mac.find({});
-  
-      res.status(200).json(macs[num]);
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
+    num = num * 1;
+    num--;
+
+    let macs = await Mac.find({});
+
+    // Fetch CommentBos
+    let CommentBos = await Comment.find({
+      $and: [
+        { email: log_userEmail },
+        { Product_id: macs[num]._id }
+      ]
+    });
+
+    // Create a new object with the product data and add alreadyComment field
+    let productData = {
+      ...macs[num]._doc, // Spread the properties of the product
+      alreadyComment: CommentBos.length !== 0 // Set alreadyComment based on CommentBos length
+    };
+
+    res.status(200).json(productData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
 app.post('/api/imac/:item', async (req, res) => {
 
     try {
@@ -379,29 +431,43 @@ app.get('/api/iwatch', async(req, res) => {
     let iwatch = await Iwatch.find({});
     res.status(200).send(iwatch);
 });
-app.get('/api/iwatch/:item', async(req, res) => {
-    try {
-      let itemId = req.params.item; 
-      let num=0;
+app.get('/api/iwatch/:item', async (req, res) => {
+  try {
+    let itemId = req.params.item;
+    let num = 0;
 
-      for(let i=0;i<itemId.length;i++)
-      {
-        if(itemId[i]=='=')
-        {
-            num=itemId[i+1];
-            break;
-        }
+    for (let i = 0; i < itemId.length; i++) {
+      if (itemId[i] == '=') {
+        num = itemId[i + 1];
+        break;
       }
-      num=num*1;
-      num--;
-      let iwatch = await Iwatch.find({});
-  
-      res.status(200).json(iwatch[num]);
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
+    num = num * 1;
+    num--;
+
+    let iwatch = await Iwatch.find({});
+
+    // Fetch CommentBos
+    let CommentBos = await Comment.find({
+      $and: [
+        { email: log_userEmail },
+        { Product_id: iwatch[num]._id }
+      ]
+    });
+
+    // Create a new object with the product data and add alreadyComment field
+    let productData = {
+      ...iwatch[num]._doc, // Spread the properties of the product
+      alreadyComment: CommentBos.length !== 0 // Set alreadyComment based on CommentBos length
+    };
+
+    res.status(200).json(productData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
 app.post('/api/iwatch/:item', async (req, res) => {
     try {
       let itemId = req.params.item;
@@ -442,29 +508,43 @@ app.get('/api/airpords', async(req, res) => {
     let airpords = await Airpords.find({});
     res.status(200).send(airpords);
 });
-app.get('/api/airpod/:item', async(req, res) => {
-    try {
-      let itemId = req.params.item; 
-      let num=0;
+app.get('/api/airpod/:item', async (req, res) => {
+  try {
+    let itemId = req.params.item;
+    let num = 0;
 
-      for(let i=0;i<itemId.length;i++)
-      {
-        if(itemId[i]=='=')
-        {
-            num=itemId[i+1];
-            break;
-        }
+    for (let i = 0; i < itemId.length; i++) {
+      if (itemId[i] == '=') {
+        num = itemId[i + 1];
+        break;
       }
-      num=num*1;
-      num--;
-      let airpords = await Airpords.find({});
-  
-      res.status(200).json(airpords[num]);
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
     }
+    num = num * 1;
+    num--;
+
+    let airpods = await Airpords.find({});
+
+    // Fetch CommentBos
+    let CommentBos = await Comment.find({
+      $and: [
+        { email: log_userEmail },
+        { Product_id: airpods[num]._id }
+      ]
+    });
+
+    // Create a new object with the product data and add alreadyComment field
+    let productData = {
+      ...airpods[num]._doc, // Spread the properties of the product
+      alreadyComment: CommentBos.length !== 0 // Set alreadyComment based on CommentBos length
+    };
+
+    res.status(200).json(productData);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
+
 app.post('/api/airpod/:item', async (req, res) => {
     try {
       let itemId = req.params.item;
