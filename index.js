@@ -6,11 +6,33 @@ const port = 5500;
 
 app.use(express.json());
 app.use(cors());
+const bodyParser = require('body-parser');
+const { log } = require('console');
 
-mongoose.connect('mongodb://localhost:27017/ecomerce-website', {
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+
+
+mongoose.connect('mongodb+srv://11shivam00:LFwpnSRjvnHGR4KY@ecomerce-website.22vukco.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
+
+// Get the default connection
+const db = mongoose.connection;
+
+// Event listeners for database connection status
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', async() => {
+  console.log('Connected to MongoDB database');
+});
+
+// Optionally, you can listen for the "disconnected" event
+db.on('disconnected', () => {
+  console.log('MongoDB disconnected');
+});
+
+
 
 const UserSchema=new mongoose.Schema({
     email:String,
@@ -102,11 +124,6 @@ const macSchema = new mongoose.Schema({
 });
 const Mac = mongoose.model('macs', macSchema);
 
-const bodyParser = require('body-parser');
-const { log } = require('console');
-
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.urlencoded({ extended: true }));
 
 app.get('/api/logUser', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -144,8 +161,13 @@ app.get('/api/', async(req, res) => {
 });
 
 app.get('/api/iphone', async(req, res) => {   
+   try{
     let iphone = await Iphone.find({});
     res.status(200).send(iphone);
+   }
+   catch(error){
+    console.log("error "+error);
+   }
 });
 app.get('/api/iphone/:item', async (req, res) => {
   try {
@@ -324,8 +346,6 @@ app.get('/api/ipad/:item', async (req, res) => {
       }
       num = num * 1;
       num--;
-      console.log(num)
-      console.log(log_userEmail)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
@@ -592,6 +612,8 @@ app.post('/api/signup', (req, res) => {
             password:password,
             username:username
         });
+        console.log("Succesfull sigup");
+        console.log(newUser);
         newUser.save();
         res.status(201).json({ message: 'Signup successful' });
 
@@ -623,9 +645,10 @@ app.post('/api/delete/:temp', async (req, res) => {
 
 
 app.post('/api/logout', (req, res) => {
-    log_userEmail="";
-    log_userName="";
-    res.status(201).json({"message":"Logout Succesfull"});
+  console.log("Log out succesfull"+log_userName+" "+log_userEmail);
+  log_userEmail="";
+  log_userName="";
+  res.status(201).json({"message":"Logout Succesfull"});
 })
 
 app.post('/api/login', async (req, res) => {
@@ -641,10 +664,14 @@ app.post('/api/login', async (req, res) => {
         log_userEmail = userdata[0].email;
         log_userName = userdata[0].username;
         console.log("Log In successful");
+
+        console.log(`Email Id: ${log_userEmail}`);
+        console.log(`User Name: ${log_userName}`)
         // Redirect to the home page after successful login
-        res.redirect('/');
+        res.status(200).redirect('/');
       } else {
         res.status(401).json({ message: 'Invalid Credentials' });
+
       }
     }
   } catch (error) {
