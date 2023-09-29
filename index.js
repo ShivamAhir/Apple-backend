@@ -53,6 +53,7 @@ const Comment= mongoose.model('comments', CommentSchema);
 
 const buySchema=new mongoose.Schema({
     id:Number,
+    Product_id:String,
     bool:Boolean,
     name:String,
     size:String,
@@ -225,6 +226,7 @@ app.post('/api/iphone/:item', async (req, res) => {
       } else {
         let iphone = await Iphone.find({id:num});
         const newBuy = new Buy({
+          Product_id:iphone[0]._id,
           id: iphone[0].id,
           bool: iphone[0].bool,
           name: iphone[0].name,
@@ -352,6 +354,7 @@ app.get('/api/ipad/:item', async (req, res) => {
         let ipad = await Ipad.find({id:num});
         const newBuy = new Buy({
           id: ipad[0].id,
+          Product_id:ipad[0]._id,
           bool: ipad[0].bool,
           name: ipad[0].name,
           size: ipad[0].size,
@@ -423,6 +426,7 @@ app.post('/api/imac/:item', async (req, res) => {
         }
       }
       num = num * 1;
+      
       num--;
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
@@ -430,6 +434,7 @@ app.post('/api/imac/:item', async (req, res) => {
         let macs = await Mac.find({id:num});
         const newBuy = new Buy({
           id: macs[0].id,
+          Product_id:macs[0]._id,
           bool: macs[0].bool,
           name: macs[0].name,
           size: macs[0].size,
@@ -507,6 +512,7 @@ app.post('/api/iwatch/:item', async (req, res) => {
         let iwatch = await Iwatch.find({id:num});
         const newBuy = new Buy({
           id: iwatch[0].id,
+          Product_id:iwatch[0]._id,
           bool: iwatch[0].bool,
           name: iwatch[0].name,
           size: iwatch[0].size,
@@ -584,6 +590,7 @@ app.post('/api/airpod/:item', async (req, res) => {
         let airpords = await Airpords.find({ id:num });
         const newBuy = new Buy({
           id: airpords[0].id,
+          Product_id:airpords[0]._id,
           bool: airpords[0].bool,
           name: airpords[0].name,
           size: airpords[0].size,
@@ -645,7 +652,7 @@ app.post('/api/delete/:temp', async (req, res) => {
 
 
 app.post('/api/logout', (req, res) => {
-  console.log("Log out succesfull"+log_userName+" "+log_userEmail);
+  console.log("Log out succesfull "+log_userName+" "+log_userEmail);
   log_userEmail="";
   log_userName="";
   res.status(201).json({"message":"Logout Succesfull"});
