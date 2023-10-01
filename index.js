@@ -13,11 +13,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.urlencoded({ extended: true }));
 
 
+
 mongoose.connect('mongodb+srv://11shivam00:LFwpnSRjvnHGR4KY@ecomerce-website.22vukco.mongodb.net/?retryWrites=true&w=majority', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
-
 // Get the default connection
 const db = mongoose.connection;
 
@@ -156,6 +156,55 @@ app.get('/api/logUser', (req, res) => {
 });
 
 
+
+app.post('/api/commentbox', async (req, res) => {
+  const { product_id, rating, comment } = req.body;
+  if (log_userName !== "") {
+    const newComment = new Comment({
+      Product_id: product_id,
+      username: log_userName,
+      email: log_userEmail,
+      rating: rating,
+      meassage: comment
+    });
+
+    try {
+      const savedComment = await newComment.save();
+
+      res.status(201).json({ message: 'Successfully added comment' });
+    } catch (error) {
+      console.error('Error saving comment:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  } else {
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/api/RatingBox/:temp', async (req, res) => {
+  try {
+    var product = req.params.temp; // Use req.params to get the parameter
+    //{ Product_id: product }
+    let comments = await Comment.find({ Product_id: product }) // Use await and lean()
+    res.status(201).json(comments); // Send the plain JavaScript object as JSON
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/api/commentBox/:temp', async (req, res) => {
+  try {
+    var product = req.params.temp; // Use req.params to get the parameter
+    //{ Product_id: product }
+    let comments = await Comment.find({ Product_id: product }) // Use await and lean()
+    res.status(201).json(comments); // Send the plain JavaScript object as JSON
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 app.get('/api/', async(req, res) => {   
     let home = await Home.find({});
     res.status(200).send(home);
@@ -206,8 +255,6 @@ app.get('/api/iphone/:item', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-
 app.post('/api/iphone/:item', async (req, res) => {
     try {
       let itemId = req.params.item;
@@ -226,15 +273,15 @@ app.post('/api/iphone/:item', async (req, res) => {
       } else {
         let iphone = await Iphone.find({id:num});
         const newBuy = new Buy({
-          Product_id:iphone[0]._id,
-          id: iphone[0].id,
-          bool: iphone[0].bool,
-          name: iphone[0].name,
-          size: iphone[0].size,
-          display: iphone[0].display,
-          link: iphone[0].link,
+          Product_id:iphone[num]._id,
+          id: iphone[num].id ,
+          bool: iphone[num].bool,
+          name: iphone[num].name,
+          size: iphone[num].size,
+          display: iphone[num].display,
+          link: iphone[num].link,
           userLog: log_userEmail,
-          price: iphone[0].price
+          price: iphone[num].price
         });
         newBuy.save();
         res.status(201).json({ message: 'Successfuly product added to cart' });
@@ -244,87 +291,39 @@ app.post('/api/iphone/:item', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
 });  
+app.get('/api/ipad', async(req, res) => {
+  try {
+    const ipads = await Ipad.find({});
 
-app.post('/api/commentbox', async (req, res) => {
-  const { product_id, rating, comment } = req.body;
-  if (log_userName !== "") {
-    const newComment = new Comment({
-      Product_id: product_id,
-      username: log_userName,
-      email: log_userEmail,
-      rating: rating,
-      meassage: comment
-    });
-
-    try {
-      const savedComment = await newComment.save();
-
-      res.status(201).json({ message: 'Successfully added comment' });
-    } catch (error) {
-      console.error('Error saving comment:', error);
-      res.status(500).json({ error: 'Internal server error' });
-    }
-  } else {
+    res.status(200).json(ipads);
+  } catch (error) {
+    console.error('Error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
-
-app.get('/api/RatingBox/:temp', async (req, res) => {
-  try {
-    var product = req.params.temp; // Use req.params to get the parameter
-    //{ Product_id: product }
-    let comments = await Comment.find({ Product_id: product }) // Use await and lean()
-    res.status(201).json(comments); // Send the plain JavaScript object as JSON
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/api/commentBox/:temp', async (req, res) => {
-  try {
-    var product = req.params.temp; // Use req.params to get the parameter
-    //{ Product_id: product }
-    let comments = await Comment.find({ Product_id: product }) // Use await and lean()
-    res.status(201).json(comments); // Send the plain JavaScript object as JSON
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-app.get('/api/ipad', async(req, res) => {
-    let ipad = await Ipad.find({});
-    res.status(200).send(ipad);
 });
 app.get('/api/ipad/:item', async (req, res) => {
   try {
     let itemId = req.params.item;
-    let num = 0;
-
-    for (let i = 0; i < itemId.length; i++) {
-      if (itemId[i] == '=') {
-        num = itemId[i + 1];
-        break;
-      }
-    }
-    num = num * 1;
+    let num = parseInt(itemId.split('=')[1]); // Extract the number from the URL
+    num*=1;
     num--;
+    console.log(num);
 
-    let ipad = await Ipad.find({});
+    let ipad = await Ipad.findOne({ id: num }); // Use findOne instead of find
+    if (!ipad) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
 
     // Fetch CommentBos
     let CommentBos = await Comment.find({
-      $and: [
-        { email: log_userEmail },
-        { Product_id: ipad[num]._id }
-      ]
+      email: log_userEmail,
+      Product_id: ipad._id,
     });
 
     // Create a new object with the product data and add alreadyComment field
     let productData = {
-      ...ipad[num]._doc, // Spread the properties of the product
-      alreadyComment: CommentBos.length !== 0 // Set alreadyComment based on CommentBos length
+      ...ipad._doc, // Spread the properties of the product
+      alreadyComment: CommentBos.length !== 0, // Set alreadyComment based on CommentBos length
     };
 
     res.status(200).json(productData);
@@ -333,45 +332,41 @@ app.get('/api/ipad/:item', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+app.post('/api/ipad/:item', async (req, res) => {
+  try {
+    let itemId = req.params.item;
+    let num = parseInt(itemId.split('=')[1]); // Extract the number from the URL
+    num*=1;
+    num--;
 
-
-  app.post('/api/ipad/:item', async (req, res) => {
-    try {
-      let itemId = req.params.item;
-      let num = 0;
-  
-      for (let i = 0; i < itemId.length; i++) {
-        if (itemId[i] == '=') {
-          num = itemId[i + 1];
-          break;
-        }
-      }
-      num = num * 1;
-      num--;
-      if (log_userEmail == "") {
-        res.status(500).json({ error: 'User not logged in' });
-      } else {
-        let ipad = await Ipad.find({id:num});
-        const newBuy = new Buy({
-          id: ipad[0].id,
-          Product_id:ipad[0]._id,
-          bool: ipad[0].bool,
-          name: ipad[0].name,
-          size: ipad[0].size,
-          display: ipad[0].display,
-          link: ipad[0].link,
-          userLog: log_userEmail,
-          price: ipad[0].price
-        });
-        newBuy.save();
-        res.status(201).json({ message: 'Successfuly product added to cart' });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+    if (!log_userEmail) {
+      return res.status(401).json({ error: 'User not logged in' });
     }
-});
 
+    let ipad = await Ipad.findOne({ id: num });
+    if (!ipad) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const newBuy = new Buy({
+      Product_id: ipad._id,
+      id: ipad.id,
+      bool: ipad.bool,
+      name: ipad.name,
+      size: ipad.size,
+      display: ipad.display,
+      link: ipad.link,
+      userLog: log_userEmail,
+      price: ipad.price,
+    });
+
+    await newBuy.save();
+    res.status(201).json({ message: 'Successfully product added to cart' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 app.get('/api/imac', async(req, res) => {
     let macs = await Mac.find({});
     res.status(200).send(macs);
@@ -412,7 +407,6 @@ app.get('/api/imac/:item', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 app.post('/api/imac/:item', async (req, res) => {
 
     try {
@@ -428,20 +422,21 @@ app.post('/api/imac/:item', async (req, res) => {
       num = num * 1;
       
       num--;
+      console.log(num)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
-        let macs = await Mac.find({id:num});
+        let macs = await Mac.find({});
         const newBuy = new Buy({
-          id: macs[0].id,
-          Product_id:macs[0]._id,
-          bool: macs[0].bool,
-          name: macs[0].name,
-          size: macs[0].size,
-          display: macs[0].display,
-          link: macs[0].link,
+          id: macs[num].id,
+          Product_id:macs[num]._id,
+          bool: macs[num].bool,
+          name: macs[num].name,
+          size: macs[num].size,
+          display: macs[num].display,
+          link: macs[num].link,
           userLog: log_userEmail,
-          price: macs[0].price
+          price: macs[num].price
         });
         newBuy.save();
         res.status(201).json({ message: 'Successfuly product added to cart' });
@@ -451,7 +446,6 @@ app.post('/api/imac/:item', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
 });
-
 app.get('/api/iwatch', async(req, res) => {
     let iwatch = await Iwatch.find({});
     res.status(200).send(iwatch);
@@ -492,44 +486,49 @@ app.get('/api/iwatch/:item', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 app.post('/api/iwatch/:item', async (req, res) => {
-    try {
-      let itemId = req.params.item;
-      let num = 0;
-  
-      for (let i = 0; i < itemId.length; i++) {
-        if (itemId[i] == '=') {
-          num = itemId[i + 1];
-          break;
-        }
-      }
-      num = num * 1;
-      num--;
-      if (log_userEmail == "") {
-        res.status(500).json({ error: 'User not logged in' });
-      } else {
-        let iwatch = await Iwatch.find({id:num});
-        const newBuy = new Buy({
-          id: iwatch[0].id,
-          Product_id:iwatch[0]._id,
-          bool: iwatch[0].bool,
-          name: iwatch[0].name,
-          size: iwatch[0].size,
-          display: iwatch[0].display,
-          link: iwatch[0].link,
-          userLog: log_userEmail,
-          price: iwatch[0].price
-        });
-        newBuy.save();
-        res.status(201).json({ message: 'Successfuly product added to cart' });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+  try {
+    const itemId = req.params.item;
+    const num = parseInt(itemId.split('=')[1]); // Extract the numeric part after '='
+
+    if (isNaN(num)) {
+      return res.status(400).json({ error: 'Invalid item ID' });
     }
+
+    // Check if the user is logged in
+    if (log_userEmail === "") {
+      return res.status(401).json({ error: 'User not logged in' });
+    }
+
+    // Find the iwatch product by its ID
+    const iwatch = await Iwatch.findOne({ id: num });
+
+    if (!iwatch) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    // Create a new Buy document
+    const newBuy = new Buy({
+      id: iwatch.id,
+      Product_id: iwatch._id,
+      bool: iwatch.bool,
+      name: iwatch.name,
+      size: iwatch.size,
+      display: iwatch.display,
+      link: iwatch.link,
+      userLog: log_userEmail,
+      price: iwatch.price
+    });
+
+    // Save the new Buy document to the database
+    await newBuy.save();
+
+    res.status(201).json({ message: 'Successfully added product to cart' });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
-  
 app.get('/api/airpords', async(req, res) => {
     let airpords = await Airpords.find({});
     res.status(200).send(airpords);
@@ -570,7 +569,6 @@ app.get('/api/airpod/:item', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
 app.post('/api/airpod/:item', async (req, res) => {
     try {
       let itemId = req.params.item;
@@ -583,21 +581,23 @@ app.post('/api/airpod/:item', async (req, res) => {
         }
       }
       num = num * 1;
+      
       num--;
+      console.log(num)
       if (log_userEmail == "") {
         res.status(500).json({ error: 'User not logged in' });
       } else {
         let airpords = await Airpords.find({ id:num });
         const newBuy = new Buy({
-          id: airpords[0].id,
-          Product_id:airpords[0]._id,
-          bool: airpords[0].bool,
-          name: airpords[0].name,
-          size: airpords[0].size,
-          display: airpords[0].display,
-          link: airpords[0].link,
+          id: airpords[num].id,
+          Product_id:airpords[num]._id,
+          bool: airpords[num].bool,
+          name: airpords[num].name,
+          size: airpords[num].size,
+          display: airpords[num].display,
+          link: airpords[num].link,
           userLog: log_userEmail,
-          price: airpords[0].price
+          price: airpords[num].price
         });
         newBuy.save();
         res.status(201).json({ message: 'Successfuly product added to cart' });
@@ -607,7 +607,7 @@ app.post('/api/airpod/:item', async (req, res) => {
       res.status(500).json({ error: 'Internal server error' });
     }
 });
-  
+
 app.post('/api/signup', (req, res) => {
     const { username, email, password } = req.body;
 
@@ -649,7 +649,9 @@ app.post('/api/delete/:temp', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
-
+app.get('/api/user/',(req,res)=>{
+  res.status(200).json({"username":log_userName});
+})
 
 app.post('/api/logout', (req, res) => {
   console.log("Log out succesfull "+log_userName+" "+log_userEmail);
