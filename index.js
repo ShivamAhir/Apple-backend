@@ -58,6 +58,10 @@ const buySchema=new mongoose.Schema({
     size:String,
     display:String,
     link:String,
+    link2:String,
+    link3:String,
+    link4:String,
+    link5:String,
     userLog:String,
     price:String
 });
@@ -76,6 +80,10 @@ const airpordsSchema = new mongoose.Schema({
     size:String,
     display:String,
     link:String,
+    link2:String,
+    link3:String,
+    link4:String,
+    link5:String,
     price:String
 });
 const Airpords = mongoose.model('airpords', airpordsSchema);
@@ -87,6 +95,10 @@ const ipadSchema = new mongoose.Schema({
     size:String,
     display:String,
     link:String,
+    link2:String,
+    link3:String,
+    link4:String,
+    link5:String,
     price:String
 });
 const Ipad = mongoose.model('ipads', ipadSchema);
@@ -98,6 +110,10 @@ const iphoneSchema = new mongoose.Schema({
     size:String,
     display:String,
     link:String,
+    link2:String,
+    link3:String,
+    link4:String,
+    link5:String,
     price:String
 });
 const Iphone = mongoose.model('iphones', iphoneSchema);
@@ -109,6 +125,10 @@ const iwatchSchema = new mongoose.Schema({
     size:String,
     display:String,
     link:String,
+    link2:String,
+    link3:String,
+    link4:String,
+    link5:String,
     price:String
 });
 const Iwatch = mongoose.model('iwatches', iwatchSchema);
@@ -119,7 +139,11 @@ const macSchema = new mongoose.Schema({
     name: String,
     size: String,
     display: String,
-    link: String,
+    link:String,
+    link2:String,
+    link3:String,
+    link4:String,
+    link5:String,
     price: String
 });
 const Mac = mongoose.model('macs', macSchema);
@@ -528,7 +552,8 @@ app.get('/api/airpords', async(req, res) => {
     let airpords = await Airpords.find({});
     res.status(200).send(airpords);
 });
-app.get('/api/airpod/:item', async (req, res) => {
+
+app.get('/api/airpords/:item', async (req, res) => {
   try {
     let itemId = req.params.item;
     let num = 0;
